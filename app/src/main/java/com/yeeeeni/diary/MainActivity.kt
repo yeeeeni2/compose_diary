@@ -11,7 +11,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.createGraph
 import com.yeeeeni.diary.ui.theme.DiaryTheme
+import com.yeeeeni.presentation.ui.view.BottomNavigationBar
+import com.yeeeeni.presentation.ui.view.CalendarScreen
+import com.yeeeeni.presentation.ui.view.HomeScreen
+import com.yeeeeni.presentation.ui.view.Screen
+import com.yeeeeni.presentation.ui.view.SettingScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -19,29 +28,45 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             DiaryTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                MainScreen()
             }
         }
     }
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+fun MainScreen() {
+    val navController = rememberNavController()
+    Scaffold(
+        modifier = Modifier
+            .fillMaxSize(),
+        bottomBar = { BottomNavigationBar(navController) }
+    ) { innerPadding ->
 
+        val graph =
+            navController.createGraph(startDestination = Screen.Home.rout) {
+                composable(route = Screen.Home.rout) {
+                    HomeScreen()
+                }
+                composable(route = Screen.Calendar.rout) {
+                    CalendarScreen()
+                }
+                composable(route = Screen.Setting.rout) {
+                    SettingScreen()
+                }
+            }
+        NavHost(
+            navController = navController,
+            graph = graph,
+            modifier = Modifier.padding(innerPadding)
+        )
+
+    }
+}
 @Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
+fun MainPreview() {
     DiaryTheme {
-        Greeting("Android")
+        MainScreen()
     }
 }
