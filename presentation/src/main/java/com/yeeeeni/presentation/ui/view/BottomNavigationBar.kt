@@ -32,17 +32,17 @@ fun BottomNavigationBar(
 
     val navigationItems = listOf(
         NavigationItem(
-            title = "Home",
+            title = "홈",
             icon =Icons.Default.Home,
             route = Screen.Home.route
         ),
         NavigationItem(
-            title = "Calendar",
+            title = "달력",
             icon = Icons.Default.Person,
             route = Screen.Calendar.route
         ),
         NavigationItem(
-            title = "Setting",
+            title = "설정",
             icon = Icons.Default.Settings,
             route = Screen.Setting.route
         )
