@@ -17,6 +17,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavController
+import com.yeeeeni.presentation.ui.common.Pink200
+import com.yeeeeni.presentation.ui.common.Pink300
+import com.yeeeeni.presentation.ui.common.Primary
 
 
 @Composable
@@ -31,17 +34,17 @@ fun BottomNavigationBar(
         NavigationItem(
             title = "Home",
             icon =Icons.Default.Home,
-            route = Screen.Home.rout
+            route = Screen.Home.route
         ),
         NavigationItem(
             title = "Calendar",
             icon = Icons.Default.Person,
-            route = Screen.Calendar.rout
+            route = Screen.Calendar.route
         ),
         NavigationItem(
             title = "Setting",
             icon = Icons.Default.Settings,
-            route = Screen.Setting.rout
+            route = Screen.Setting.route
         )
     )
 
@@ -62,13 +65,14 @@ fun BottomNavigationBar(
                     Text(
                         item.title,
                         color = if (index == selectedNavigationIndex.intValue)
-                            Color.Black
-                        else Color.Gray
+                            Primary
+                        else Pink300
                     )
                 },
                 colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = MaterialTheme.colorScheme.surface,
-                    indicatorColor = MaterialTheme.colorScheme.primary
+                    selectedIconColor = Pink200,
+                    unselectedIconColor = Pink300,
+                    indicatorColor = Primary,
                 )
 
             )
@@ -82,10 +86,11 @@ data class NavigationItem(
     val route: String
 )
 
-sealed class Screen(val rout: String) {
+sealed class Screen(val route: String) {
     object Home: Screen("home_screen")
     object Calendar: Screen("calendar_screen")
     object Setting: Screen("setting_screen")
+    object Diary: Screen("diary_screen")
 }
 
 
