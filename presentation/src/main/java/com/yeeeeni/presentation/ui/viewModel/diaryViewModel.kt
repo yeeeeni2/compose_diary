@@ -7,6 +7,7 @@ import com.yeeeeni.data.repository.DiaryRepository
 import com.yeeeeni.presentation.ui.viewState.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -31,9 +32,17 @@ class DiaryViewModel @Inject constructor(
     private fun fetchDiaryList() {
         viewModelScope.launch {
             _diaryListState.value = UiState.Loading
+
+            ///화면 깜빡임 방지(api 응답시간이 300ms 이하일 경우 최소 지연 보장)
+            val startTime = System.currentTimeMillis()
+
             repository.getAll()
                 .catch { e -> _diaryListState.value = UiState.Error(e) }
                 .collect { list ->
+                    val elapsed = System.currentTimeMillis() - startTime
+                    val remaining = 300L - elapsed
+                    if (remaining > 0) delay(remaining)
+
                     _diaryListState.value = if (list.isEmpty()) {
                         UiState.Empty
                     } else {

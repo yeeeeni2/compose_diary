@@ -29,6 +29,7 @@ import com.yeeeeni.presentation.ui.common.FloatingButton
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.yeeeeni.presentation.ui.common.CommonButton
+import com.yeeeeni.presentation.ui.common.DotsLoading
 import com.yeeeeni.presentation.ui.common.Gray100
 import com.yeeeeni.presentation.ui.common.Gray200
 import com.yeeeeni.presentation.ui.common.Gray300
@@ -51,7 +52,7 @@ fun HomeScreen(
             .padding(16.dp),
     ) {
         when (diaryListState) {
-            is UiState.Loading -> CircularProgressIndicator()
+            is UiState.Loading -> DotsLoading()
             is UiState.Empty -> EmptyComponent(
                 "작성된 일기가 없어요"
             )
