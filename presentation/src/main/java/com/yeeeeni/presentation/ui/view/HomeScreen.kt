@@ -1,5 +1,6 @@
 package com.yeeeeni.presentation.ui.view
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,13 +38,12 @@ import com.yeeeeni.presentation.ui.common.Gray400
 import com.yeeeeni.presentation.ui.common.Gray600
 import com.yeeeeni.presentation.ui.viewModel.DiaryViewModel
 import com.yeeeeni.presentation.ui.viewState.UiState
-import java.time.format.TextStyle
 
 @Composable
 fun HomeScreen(
     navController: NavHostController,
-    viewModel: DiaryViewModel = hiltViewModel()
 ) {
+    val viewModel : DiaryViewModel = hiltViewModel()
     val diaryListState by viewModel.diaryListState.collectAsStateWithLifecycle()
 
     Box(
@@ -63,9 +63,14 @@ fun HomeScreen(
             )
             is UiState.Success -> {
                 val list = (diaryListState as UiState.Success).data
-                LazyColumn {
+                LazyColumn(
+                    modifier = Modifier.background(Color.White)
+                ) {
                     items(list) { diary ->
-                        Text(text = diary.title)
+                        Text(
+                            text = diary.title,
+                            color = Color.Black
+                        )
                     }
                 }
             }

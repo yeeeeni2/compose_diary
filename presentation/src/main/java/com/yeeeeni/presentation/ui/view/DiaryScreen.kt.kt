@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.paddingFromBaseline
@@ -28,6 +29,7 @@ import androidx.navigation.NavController
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.input.TextFieldDecorator
+import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -43,14 +45,18 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.yeeeeni.presentation.ui.common.CommonButton
 import com.yeeeeni.presentation.ui.common.Gray200
 import com.yeeeeni.presentation.ui.common.Pink400
 import com.yeeeeni.presentation.ui.common.Primary
+import com.yeeeeni.presentation.ui.viewModel.DiaryViewModel
 
 @Composable
-fun DiaryScreen(navController: NavController) {
-    val textState = rememberTextFieldState()
+fun DiaryScreen(
+    navController: NavController,
+) {
+    val viewModel: DiaryViewModel = hiltViewModel()
     val focusRequester = remember { FocusRequester() }
 
     LaunchedEffect(Unit) {
@@ -84,24 +90,58 @@ fun DiaryScreen(navController: NavController) {
             )
         }
 
-        // 텍스트영역
+        // 제목
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f)
-                .padding(vertical = 20.dp)
+                .padding(top = 20.dp, bottom = 10.dp)
+                .height(50.dp)
                 .clip(RoundedCornerShape(16.dp))
                 .border(1.dp, Gray200, RoundedCornerShape(16.dp))
                 .background(Color.White)
         ) {
             BasicTextField(
-                state = textState,
+                state = viewModel.titleState,
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(all = 16.dp)
                     .focusRequester(focusRequester),
+                lineLimits = TextFieldLineLimits.SingleLine,
                 decorator = TextFieldDecorator { innerTextField ->
-                    if (textState.text.isEmpty()) {
+                    if (viewModel.titleState.text.isEmpty()) {
+                        Text(
+                            modifier = Modifier.paddingFromBaseline(top = 0.dp),
+                            text = "제목",
+                            color = Color.Gray,
+                            fontSize = 16.sp,
+                        )
+                    }
+                    innerTextField()
+                },
+                textStyle = TextStyle(
+                    fontSize = 16.sp,
+                    color = Color.Black,
+                )
+            )
+        }
+
+        // 내용
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+                .padding(bottom = 20.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .border(1.dp, Gray200, RoundedCornerShape(16.dp))
+                .background(Color.White)
+        ) {
+            BasicTextField(
+                state = viewModel.contentState,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(all = 16.dp),
+                decorator = TextFieldDecorator { innerTextField ->
+                    if (viewModel.contentState.text.isEmpty()) {
                         Text(
                             modifier = Modifier.paddingFromBaseline(top = 0.dp),
                             text = "오늘 하루를 기록해보세요...",
@@ -121,10 +161,11 @@ fun DiaryScreen(navController: NavController) {
         // 저장하기
         CommonButton(
             onClick = {
+                viewModel.insert()
                 navController.popBackStack()
             },
             title = "저장하기",
-            enable = textState.text.isNotEmpty(),
+            enable = viewModel.isAllTextEmpty(),
         )
     }
 }

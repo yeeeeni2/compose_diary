@@ -1,5 +1,7 @@
 package com.yeeeeni.presentation.ui.viewModel
 
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.yeeeeni.data.local.entity.Diary
@@ -12,6 +14,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 @HiltViewModel
@@ -25,8 +28,25 @@ class DiaryViewModel @Inject constructor(
     private val _diaryState = MutableStateFlow<UiState<Diary>>(UiState.Loading)
     val diaryState: StateFlow<UiState<Diary>> = _diaryState.asStateFlow()
 
+    //사용자가 입력한 제목, 내용
+    val titleState = TextFieldState()
+    val contentState = TextFieldState()
+
+    var diary = Diary()
+
     init {
         fetchDiaryList()
+        viewModelScope.launch {
+            combine(
+                snapshotFlow { titleState.text.toString() },
+                snapshotFlow { contentState.text.toString() }
+            ) { title, content ->
+                title to content
+            }.collect { (title, content) ->
+                updateTitle(title)
+                updateContent(content)
+            }
+        }
     }
 
     private fun fetchDiaryList() {
@@ -67,14 +87,14 @@ class DiaryViewModel @Inject constructor(
         fetchDiaryList()
     }
 
-    fun insert(diary: Diary) {
+    fun insert() {
         viewModelScope.launch {
             runCatching { repository.insert(diary) }
                 .onFailure { e -> _diaryListState.value = UiState.Error(e) }
         }
     }
 
-    fun update(diary: Diary) {
+    fun update() {
         viewModelScope.launch {
             runCatching { repository.update(diary) }
                 .onFailure { e -> _diaryListState.value = UiState.Error(e) }
@@ -93,5 +113,19 @@ class DiaryViewModel @Inject constructor(
             runCatching { repository.deleteAll() }
                 .onFailure { e -> _diaryListState.value = UiState.Error(e) }
         }
+    }
+
+    fun isAllTextEmpty() : Boolean {
+        return titleState.text.isNotEmpty() && contentState.text.isNotEmpty()
+    }
+
+    // 제목 수정
+    fun updateTitle(title: String) {
+        diary = diary.copy(title = title)
+    }
+
+    // 내용 수정
+    fun updateContent(content: String) {
+        diary = diary.copy(content = content)
     }
 }
