@@ -43,6 +43,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
+import com.yeeeeni.presentation.ui.common.CommonButton
 import com.yeeeeni.presentation.ui.common.Gray200
 import com.yeeeeni.presentation.ui.common.Pink400
 import com.yeeeeni.presentation.ui.common.Primary
@@ -118,29 +119,12 @@ fun DiaryScreen(navController: NavController) {
         }
 
         // 저장하기
-        Box(
-            modifier = Modifier
-                .clickable(
-                    indication = null,
-                    interactionSource = remember { MutableInteractionSource() }
-                ) {
-                    if(textState.text.isEmpty()) {
-                        return@clickable
-                    }
-                    navController.popBackStack()
-                }
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(999.dp))
-                .background(if (textState.text.isNotEmpty()) Pink400 else Primary),
-            contentAlignment = Alignment.Center,
-        ) {
-            Text(
-                modifier = Modifier.padding(vertical = 10.dp),
-                text = "저장하기",
-                textAlign = TextAlign.Center,
-                style = TextStyle(color = Color.White),
-                fontSize = 16.sp,
-            )
-        }
+        CommonButton(
+            onClick = {
+                navController.popBackStack()
+            },
+            title = "저장하기",
+            enable = textState.text.isNotEmpty(),
+        )
     }
 }

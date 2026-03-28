@@ -25,7 +25,9 @@ import com.yeeeeni.presentation.ui.view.DiaryScreen
 import com.yeeeeni.presentation.ui.view.HomeScreen
 import com.yeeeeni.presentation.ui.view.Screen
 import com.yeeeeni.presentation.ui.view.SettingScreen
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
