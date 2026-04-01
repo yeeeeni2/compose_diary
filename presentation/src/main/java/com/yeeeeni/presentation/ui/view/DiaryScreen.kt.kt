@@ -46,18 +46,32 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.yeeeeni.presentation.ui.common.CommonButton
+import com.yeeeeni.presentation.ui.common.CommonCard
 import com.yeeeeni.presentation.ui.common.Gray200
+import com.yeeeeni.presentation.ui.common.Gray600
+import com.yeeeeni.presentation.ui.common.Pink200
+import com.yeeeeni.presentation.ui.common.Pink300
 import com.yeeeeni.presentation.ui.common.Pink400
 import com.yeeeeni.presentation.ui.common.Primary
+import com.yeeeeni.presentation.ui.dialog.CustomDatePickerDialog
+import com.yeeeeni.presentation.ui.extension.toKoreanDateFormat
+import com.yeeeeni.presentation.ui.extension.toKoreanFormat
+import com.yeeeeni.presentation.ui.extension.today
 import com.yeeeeni.presentation.ui.viewModel.DiaryViewModel
+import com.yeeeeni.presentation.ui.viewModel.MainViewModel
 
 @Composable
 fun DiaryScreen(
     navController: NavController,
 ) {
     val viewModel: DiaryViewModel = hiltViewModel()
+    val mainViewModel: MainViewModel = hiltViewModel()
     val focusRequester = remember { FocusRequester() }
+    val customDatePickerDialogState = mainViewModel.customDatePickerDialogState.value
+
+    val selectedDate by viewModel.selectedDate.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
@@ -71,6 +85,14 @@ fun DiaryScreen(
             .padding(16.dp)
             .imePadding()
     ) {
+        if (customDatePickerDialogState?.isShowDialog == true) {
+            CustomDatePickerDialog(
+                selectedDate = customDatePickerDialogState.selectedDate,
+                onClickCancel = customDatePickerDialogState.onClickCancel,
+                onClickConfirm = customDatePickerDialogState.onClickConfirm
+            )
+        }
+
         // 뒤로가기
         Row {
             Image(
@@ -90,71 +112,86 @@ fun DiaryScreen(
             )
         }
 
-        // 제목
-        Box(
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 20.dp, bottom = 10.dp)
-                .height(50.dp)
-                .clip(RoundedCornerShape(16.dp))
-                .border(1.dp, Gray200, RoundedCornerShape(16.dp))
-                .background(Color.White)
-        ) {
-            BasicTextField(
-                state = viewModel.titleState,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(all = 16.dp)
-                    .focusRequester(focusRequester),
-                lineLimits = TextFieldLineLimits.SingleLine,
-                decorator = TextFieldDecorator { innerTextField ->
-                    if (viewModel.titleState.text.isEmpty()) {
-                        Text(
-                            modifier = Modifier.paddingFromBaseline(top = 0.dp),
-                            text = "제목",
-                            color = Color.Gray,
-                            fontSize = 16.sp,
-                        )
-                    }
-                    innerTextField()
-                },
-                textStyle = TextStyle(
-                    fontSize = 16.sp,
-                    color = Color.Black,
-                )
-            )
-        }
-
-        // 내용
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
                 .weight(1f)
-                .padding(bottom = 20.dp)
-                .clip(RoundedCornerShape(16.dp))
-                .border(1.dp, Gray200, RoundedCornerShape(16.dp))
-                .background(Color.White)
         ) {
-            BasicTextField(
-                state = viewModel.contentState,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(all = 16.dp),
-                decorator = TextFieldDecorator { innerTextField ->
-                    if (viewModel.contentState.text.isEmpty()) {
-                        Text(
-                            modifier = Modifier.paddingFromBaseline(top = 0.dp),
-                            text = "오늘 하루를 기록해보세요...",
-                            color = Color.Gray,
-                            fontSize = 16.sp,
-                        )
-                    }
-                    innerTextField()
+            // 날짜 선택
+            CommonCard(
+                borderColor = Pink300,
+                top = 20.dp,
+                bottom = 10.dp,
+                height = 50.dp,
+                onClick = {
+                    mainViewModel.showDatePickerDialog()
                 },
-                textStyle = TextStyle(
-                    fontSize = 16.sp,
-                    color = Color.Black,
-                )
+                content = {
+                    Text(
+                        modifier = Modifier.padding(start = 16.dp),
+                        text = selectedDate?.toKoreanDateFormat() ?: today().toKoreanDateFormat(),
+                        color = Gray600,
+                        fontSize = 16.sp,
+                    )
+                }
+            )
+
+            // 제목
+            CommonCard(
+                bottom = 10.dp,
+                height = 50.dp,
+                content = {
+                    BasicTextField(
+                        state = viewModel.titleState,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(all = 16.dp)
+                            .focusRequester(focusRequester),
+                        lineLimits = TextFieldLineLimits.SingleLine,
+                        decorator = TextFieldDecorator { innerTextField ->
+                            if (viewModel.titleState.text.isEmpty()) {
+                                Text(
+                                    modifier = Modifier.paddingFromBaseline(top = 0.dp),
+                                    text = "제목",
+                                    color = Color.Gray,
+                                    fontSize = 16.sp,
+                                )
+                            }
+                            innerTextField()
+                        },
+                        textStyle = TextStyle(
+                            fontSize = 16.sp,
+                            color = Color.Black,
+                        )
+                    )
+                }
+            )
+
+            // 내용
+            CommonCard(
+                bottom = 20.dp,
+                content = {
+                    BasicTextField(
+                        state = viewModel.contentState,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(all = 16.dp),
+                        decorator = TextFieldDecorator { innerTextField ->
+                            if (viewModel.contentState.text.isEmpty()) {
+                                Text(
+                                    modifier = Modifier.paddingFromBaseline(top = 0.dp),
+                                    text = "오늘 하루를 기록해보세요...",
+                                    color = Color.Gray,
+                                    fontSize = 16.sp,
+                                )
+                            }
+                            innerTextField()
+                        },
+                        textStyle = TextStyle(
+                            fontSize = 16.sp,
+                            color = Color.Black,
+                        )
+                    )
+                }
             )
         }
 

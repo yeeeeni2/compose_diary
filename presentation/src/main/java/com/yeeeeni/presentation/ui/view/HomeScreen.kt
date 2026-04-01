@@ -36,6 +36,7 @@ import com.yeeeeni.presentation.ui.common.Gray200
 import com.yeeeeni.presentation.ui.common.Gray300
 import com.yeeeeni.presentation.ui.common.Gray400
 import com.yeeeeni.presentation.ui.common.Gray600
+import com.yeeeeni.presentation.ui.component.HomeDataUI
 import com.yeeeeni.presentation.ui.viewModel.DiaryViewModel
 import com.yeeeeni.presentation.ui.viewState.UiState
 
@@ -63,16 +64,15 @@ fun HomeScreen(
             )
             is UiState.Success -> {
                 val list = (diaryListState as UiState.Success).data
-                LazyColumn(
-                    modifier = Modifier.background(Color.White)
-                ) {
-                    items(list) { diary ->
-                        Text(
-                            text = diary.title,
-                            color = Color.Black
-                        )
-                    }
-                }
+                HomeDataUI(
+                    onDeleteAll = {
+                        viewModel.deleteAll()
+                    },
+                    onDelete = {
+                        viewModel.delete(it)
+                    },
+                    diaryList = list
+                )
             }
         }
 

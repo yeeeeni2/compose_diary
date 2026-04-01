@@ -2,10 +2,12 @@ package com.yeeeeni.presentation.ui.viewModel
 
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.snapshotFlow
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.yeeeeni.data.local.entity.Diary
 import com.yeeeeni.data.repository.DiaryRepository
+import com.yeeeeni.presentation.ui.extension.today
 import com.yeeeeni.presentation.ui.viewState.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
@@ -33,8 +35,11 @@ class DiaryViewModel @Inject constructor(
     val contentState = TextFieldState()
 
     var diary = Diary()
+    val selectedDate = repository.selectedDate
 
     init {
+        ///초기 날짜를 오늘로 설정
+        updateEntryDate(today())
         fetchDiaryList()
         viewModelScope.launch {
             combine(
@@ -45,6 +50,12 @@ class DiaryViewModel @Inject constructor(
             }.collect { (title, content) ->
                 updateTitle(title)
                 updateContent(content)
+            }
+        }
+
+        viewModelScope.launch {
+            repository.selectedDate.collect { date ->
+                date?.let { updateEntryDate(it) }
             }
         }
     }
@@ -89,7 +100,9 @@ class DiaryViewModel @Inject constructor(
 
     fun insert() {
         viewModelScope.launch {
-            runCatching { repository.insert(diary) }
+            runCatching {
+                repository.insert(diary)
+            }
                 .onFailure { e -> _diaryListState.value = UiState.Error(e) }
         }
     }
@@ -127,5 +140,10 @@ class DiaryViewModel @Inject constructor(
     // 내용 수정
     fun updateContent(content: String) {
         diary = diary.copy(content = content)
+    }
+
+    // 다이어리 날짜 수정(기록한 날짜는 오늘로 매핑)
+    fun updateEntryDate(yyyyMMdd: String) {
+        diary = diary.copy(entryDate = yyyyMMdd, createDate = today())
     }
 }

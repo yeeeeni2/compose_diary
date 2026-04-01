@@ -18,11 +18,11 @@ data class Diary(
     @ColumnInfo(name = "content")
     var content: String,
 
-    //일기에 해당하는 날짜 (yyyy-mm-dd hh:mm)
+    //일기에 해당하는 날짜 (yyyyMMdd)
     @ColumnInfo(name = "entryDate")
     var entryDate: String,
 
-    //DB에 저장한 날짜 (yyyy-mm-dd hh:mm)
+    //DB에 저장한 날짜 (yyyyMMdd)
     @ColumnInfo(name = "createDate")
     var createDate: String,
 
