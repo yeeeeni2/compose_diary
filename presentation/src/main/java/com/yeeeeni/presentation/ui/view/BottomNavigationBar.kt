@@ -17,23 +17,21 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.yeeeeni.presentation.ui.common.Pink200
 import com.yeeeeni.presentation.ui.common.Pink300
 import com.yeeeeni.presentation.ui.common.Primary
 
 
 @Composable
+// 바텀 네비게이션바
 fun BottomNavigationBar(
     navController: NavController
 ) {
-    val selectedNavigationIndex = rememberSaveable {
-        mutableIntStateOf(0)
-    }
-
     val navigationItems = listOf(
         NavigationItem(
             title = "홈",
-            icon =Icons.Default.Home,
+            icon = Icons.Default.Home,
             route = Screen.Home.route
         ),
         NavigationItem(
@@ -48,15 +46,26 @@ fun BottomNavigationBar(
         )
     )
 
+    // 현재 route를 기반으로 선택 index 계산
+    val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
+    val selectedNavigationIndex = navigationItems.indexOfFirst { it.route == currentRoute }
+
     NavigationBar(
         containerColor = Color.White
     ) {
         navigationItems.forEachIndexed { index, item ->
             NavigationBarItem(
-                selected = selectedNavigationIndex.intValue == index,
+                // route 기반
+                selected = selectedNavigationIndex == index,
                 onClick = {
-                    selectedNavigationIndex.intValue = index
-                    navController.navigate(item.route)
+                    navController.navigate(item.route) {
+                        // 백스택 중복 쌓임 방지
+                        popUpTo(Screen.Home.route) {
+                            saveState = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
                 },
                 icon = {
                     Icon(imageVector = item.icon, contentDescription = item.title)
@@ -64,7 +73,7 @@ fun BottomNavigationBar(
                 label = {
                     Text(
                         item.title,
-                        color = if (index == selectedNavigationIndex.intValue)
+                        color = if (index == selectedNavigationIndex)
                             Primary
                         else Pink300
                     )
@@ -74,7 +83,6 @@ fun BottomNavigationBar(
                     unselectedIconColor = Pink300,
                     indicatorColor = Primary,
                 )
-
             )
         }
     }
